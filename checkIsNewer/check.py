@@ -1,52 +1,33 @@
-import os
-'''
-   compare two folder, find out the file which has been changed
-'''
-import json
-
-class RunCheckFileNewer(object):
-    def __init__(self, jsonFile):
-        self.fileList = self.load_json(jsonFile)['fileNames']
-        self.oldTime = self.load_json(jsonFile)['oldTime']
+import os, time
 
 
-    def load_json(self, jsonFile):
-       if jsonFile is not None:
-           assert os.path.isfile(os.path.join(os.getcwd(), jsonFile))
-           if os.path.isfile(jsonFile):
-               with open(jsonFile, 'r') as fp:
-                   return json.load(fp)
-       return None
-    '''
-    def getFileName(req):
-       fList = []
-       if os.path.isfile(req):
-           with open(req, 'r+') as f:
-               for item in f.readlines():
-                   fList.append(item)
-           return fList
-       else:
-           assert "The file doesn't exist."
-    '''
-
-    def judgeIsNewer(self, fn, req):
-       if os.path.exists(req):
-           for parent, dirnames, filenames in os.walk(req):
-               for filename in filenames:
-                   if filename == fn:
-                       mTime = os.path.getatime(os.path.join(parent, filename))
-                       if mTime > self.oldTime:
-                           val = 1
+def readFile(fp):
+    fileList = []
+    if os.path.exists(fp):
+        with open(fp, "r+") as f:
+            for readline in f.readlines():
+                fileList.append(readline.strip('\n'))
+        return fileList
 
 
-if '__name__' == '__main__':
-    import os
-    runCheck = RunCheckFileNewer('newfiles.json')
-    filePath = os.path.join(os.getcwd(), 'newfiles.json')
-    newFileList = runCheck.fileList
-    for fn in newFileList:
+def output(fn, req):
+    if os.path.exists(req):
+        for parent, dirnames, filenames in os.walk(req):
+            if fn in filenames:
+                atime = os.path.getatime(os.path.join(parent, fn))
+                timeArray = time.localtime(atime)
+                formatTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+                print os.path.join(parent, fn), formatTime
+            else:
+                print "%s doesn't exist." % fn
 
-    # get info of filename in new folder
-    # judge these files are newer
-    # output result
+
+if __name__ == "__main__":
+    filePath = "D:/test.txt"
+    folderPath = "D:/testfolder"
+    fileList = readFile(filePath)
+    for fn in fileList:
+        output(fn, folderPath)
+
+
 
