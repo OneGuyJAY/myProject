@@ -54,4 +54,3 @@ if __name__ == '__main__':
                     sys.exit(0)
 
     raise ValueError('Usage:  python [path]/command_manager.py [path]/json file')
-    sys.exit(-1)
