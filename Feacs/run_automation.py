@@ -127,8 +127,7 @@ class MakeChooseCmd(RunAutomationCmd, RunAutomationCompareCmd, RunExtructUniqueC
         }
 
     def do(self):
-        # self.choose()
-        self._extract()
+        self.choose()
 
     def choose(self):
         usrOpt = self.get_arg("option")
@@ -136,21 +135,34 @@ class MakeChooseCmd(RunAutomationCmd, RunAutomationCompareCmd, RunExtructUniqueC
             assert "No 'option' arg found in JSON."
         else:
             if usrOpt in self._option.keys():
-                self._option[usrOpt]()
+                func = self._option[usrOpt]
+                func()
+
+    def extract_args(self, jsonFile):
+        args_json = self.get_arg(jsonFile)
+        if os.path.exists(args_json):
+            argsFile = self.load_json(args_json)
+            if argsFile:
+                args = argsFile["args"]
+                return args
+        return None
 
     def _extract(self):
-        extract_args_json = self.get_arg("extract_args")
-        if os.path.exists(extract_args_json):
-            extract_args = self.load_json(extract_args_json)
-            args = extract_args["args"]
+        args = self.extract_args("extract_args")
         ext = RunExtructUniqueCasesCmd(self._mgr, args)
         ext.do()
 
     def _runBase(self):
-        pass
+        args = self.extract_args("gen_baseline_args")
+        ext = RunAutomationCmd(self._mgr, args)
+        ext.do()
 
     def _runTest(self):
-        pass
+        args = self.extract_args("gen_mytest_args")
+        ext = RunAutomationCmd(self._mgr, args)
+        ext.do()
 
     def _compare(self):
-        pass
+        args = self.extract_args("result_compare")
+        ext = RunAutomationCompareCmd(self._mgr, args)
+        ext.do()
